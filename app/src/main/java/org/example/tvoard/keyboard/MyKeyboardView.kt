@@ -13,9 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-/*
- * halbae87: this project is created from Soft Keyboard Sample source
- */
 package org.example.tvoard.keyboard
 
 import android.content.Context
@@ -23,21 +20,19 @@ import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
-import android.os.Handler
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.PopupWindow
 import android.widget.TextView
-import org.example.tvoard.R
 
 class MyKeyboardView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleRes: Int = 0,
-    defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleRes: Int = 0
 ) : KeyboardView(context, attrs) {
 
-    private var mKeyboard: MyKeyboard? = null
+    private val TAG = "MyKeyboardView"
 
     private var mLabelTextSize = 0
     private var mKeyTextSize = 0
@@ -51,14 +46,10 @@ class MyKeyboardView @JvmOverloads constructor(
     private var mPreviewTextSizeLarge = 0
     private var mPreviewHeight = 0
 
-    private val mCoordinates = IntArray(2)
     private val mPopupKeyboard: PopupWindow
     private var mPopupParent: View
     private val mMiniKeyboardCache: MutableMap<Keyboard.Key, View?>
-    private var mKeys = ArrayList<Keyboard.Key>()
-    private var mMiniKeyboardSelectedKeyIndex = -1
 
-    var mOnKeyboardActionListener: OnKeyboardActionListener? = null
     private var mVerticalCorrection = 0
 
     private val mPaint: Paint
@@ -74,20 +65,23 @@ class MyKeyboardView @JvmOverloads constructor(
     /** The accessibility manager for accessibility support  */
     private val mAccessibilityManager: AccessibilityManager
 
-    private var mHandler: Handler? = null
-
     init {
         val attributes =
-            context.obtainStyledAttributes(attrs, R.styleable.MyKeyboardView, 0, defStyleRes)
+            context.obtainStyledAttributes(
+                attrs,
+                org.example.tvoard.R.styleable.MyKeyboardView,
+                0,
+                defStyleRes
+            )
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val keyTextSize = 0
         val indexCnt = attributes.indexCount
 
         try {
             for (i in 0 until indexCnt) {
-                val attr = attributes.getIndex(i)
-                when (attr) {
-                    R.styleable.MyKeyboardView_keyTextSize -> mKeyTextSize =
+                Log.v(TAG, attributes.getIndex(i).toString())
+                when (val attr = attributes.getIndex(i)) {
+                    org.example.tvoard.R.styleable.MyKeyboardView_keyTextSize -> mKeyTextSize =
                         attributes.getDimensionPixelSize(attr, 18)
                 }
             }
@@ -95,20 +89,33 @@ class MyKeyboardView @JvmOverloads constructor(
             attributes.recycle()
         }
 
-        mPopupLayout = R.layout.keyboard_popup_keyboard
-        mKeyBackground = resources.getDrawable(R.drawable.keyboard_key_selector, context.theme)
-        mVerticalCorrection = resources.getDimension(R.dimen.vertical_correction).toInt()
-        mLabelTextSize = resources.getDimension(R.dimen.label_text_size).toInt()
-        mPreviewHeight = resources.getDimension(R.dimen.key_height).toInt()
-        mSpaceMoveThreshold = resources.getDimension(R.dimen.medium_margin).toInt()
-        mTextColor = resources.getColor(R.color.black, context.theme)
-        mBackgroundColor = resources.getColor(R.color.blacktheme_color_background, context.theme)
-        mPrimaryColor = resources.getColor(R.color.app_color_primary, context.theme)
+        mPopupLayout = org.example.tvoard.R.layout.keyboard_view_popup
+        mKeyBackground = resources.getDrawable(
+            org.example.tvoard.R.drawable.key_selector,
+            context.theme
+        )
+        mVerticalCorrection =
+            resources.getDimension(org.example.tvoard.R.dimen.vertical_correction).toInt()
+        mLabelTextSize = resources.getDimension(org.example.tvoard.R.dimen.label_text_size).toInt()
+        mPreviewHeight = resources.getDimension(org.example.tvoard.R.dimen.key_height).toInt()
+        mSpaceMoveThreshold =
+            resources.getDimension(org.example.tvoard.R.dimen.medium_margin).toInt()
+        mTextColor = resources.getColor(org.example.tvoard.R.color.black, context.theme)
+        mBackgroundColor = resources.getColor(
+            org.example.tvoard.R.color.blacktheme_color_background,
+            context.theme
+        )
+        mPrimaryColor =
+            resources.getColor(org.example.tvoard.R.color.color_primary, context.theme)
 
         mPreviewPopup = PopupWindow(context)
         mPreviewText =
-            inflater.inflate(resources.getLayout(R.layout.keyboard_key_preview), null) as TextView
-        mPreviewTextSizeLarge = context.resources.getDimension(R.dimen.preview_text_size).toInt()
+            inflater.inflate(
+                resources.getLayout(org.example.tvoard.R.layout.keyboard_key_preview),
+                null
+            ) as TextView
+        mPreviewTextSizeLarge =
+            context.resources.getDimension(org.example.tvoard.R.dimen.preview_text_size).toInt()
         mPreviewPopup.contentView = mPreviewText
         mPreviewPopup.setBackgroundDrawable(null)
 
@@ -124,13 +131,13 @@ class MyKeyboardView @JvmOverloads constructor(
         mMiniKeyboardCache = HashMap()
         mAccessibilityManager =
             (context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager)
-        mPopupMaxMoveDistance = resources.getDimension(R.dimen.popup_max_move_distance)
-        mTopSmallNumberSize = resources.getDimension(R.dimen.small_text_size)
-        mTopSmallNumberMarginWidth = resources.getDimension(R.dimen.top_small_number_margin_width)
-        mTopSmallNumberMarginHeight = resources.getDimension(R.dimen.top_small_number_margin_height)
+        mPopupMaxMoveDistance =
+            resources.getDimension(org.example.tvoard.R.dimen.popup_max_move_distance)
+        mTopSmallNumberSize = resources.getDimension(org.example.tvoard.R.dimen.small_text_size)
+        mTopSmallNumberMarginWidth =
+            resources.getDimension(org.example.tvoard.R.dimen.top_small_number_margin_width)
+        mTopSmallNumberMarginHeight =
+            resources.getDimension(org.example.tvoard.R.dimen.top_small_number_margin_height)
     }
 
-    override fun onLongPress(key: Keyboard.Key?): Boolean {
-        return super.onLongPress(key)
-    }
 }

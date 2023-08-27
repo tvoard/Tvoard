@@ -21,7 +21,7 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/settings"
             android:padding="@dimen/small_margin"
-            android:src="@drawable/ic_settings_cog_vector"
+            android:src="@drawable/ic_settings_cog"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -40,7 +40,7 @@
 
     <org.example.tvoard.keyboard.MyKeyboardView
         android:id="@+id/keyboard_view"
-        style="@style/MyKeyboardView"
+        style="@style/KeyboardView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/blacktheme_color_background"

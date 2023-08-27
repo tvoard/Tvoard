@@ -15,11 +15,8 @@
 ** See the License for the specific language governing permissions and 
 ** limitations under the License.
 **
-** halbae87: modified Soft Keyboard Sample to create this project
-**
 */
 -->
-
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     android:horizontalGap="0px"
     android:keyWidth="10%p"
@@ -103,7 +100,7 @@
             android:isSticky="true"
             android:keyWidth="15%p"
             android:keyEdgeFlags="left"
-            android:keyIcon="@drawable/sym_keyboard_shift" />
+            android:keyIcon="@drawable/ic_key_shift" />
         <Key
             android:codes="33"
             android:keyLabel="!" />
@@ -130,15 +127,15 @@
             android:isRepeatable="true"
             android:keyWidth="15%p"
             android:keyEdgeFlags="right"
-            android:keyIcon="@drawable/sym_keyboard_delete" />
+            android:keyIcon="@drawable/ic_key_delete" />
     </Row>
 
     <Row android:rowEdgeFlags="bottom">
         <!--
-                <Key android:codes="-6" android:keyIcon="@drawable/sym_keyboard_done"
-                        android:keyWidth="20%p" android:keyEdgeFlags="left"/>
-                <Key android:codes="-6" android:keyLabel="none"
-                        android:keyWidth="20%p" android:keyEdgeFlags="left"/>
+                <Key app:codes="-6" app:keyIcon="@drawable/sym_keyboard_done"
+                        app:keyWidth="20%p" app:keyEdgeFlags="left"/>
+                <Key app:codes="-6" app:keyLabel="none"
+                        app:keyWidth="20%p" app:keyEdgeFlags="left"/>
          -->
         <Key
             android:codes="46"
@@ -156,7 +153,7 @@
             android:codes="32"
             android:isRepeatable="true"
             android:keyWidth="30%p"
-            android:keyIcon="@drawable/sym_keyboard_space" />
+            android:keyIcon="@drawable/ic_key_space" />
         <Key
             android:codes="44"
             android:keyWidth="15%p"
@@ -165,6 +162,6 @@
             android:codes="10"
             android:keyWidth="20%p"
             android:keyEdgeFlags="right"
-            android:keyIcon="@drawable/sym_keyboard_return" />
+            android:keyIcon="@drawable/ic_key_return" />
     </Row>
 </Keyboard>

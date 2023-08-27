@@ -9,14 +9,14 @@ import org.example.tvoard.InputTables.Vowels
 import org.example.tvoard.common.ACTION_APPEND
 import org.example.tvoard.common.ACTION_ERROR
 import org.example.tvoard.common.ACTION_NONE
-import org.example.tvoard.common.ACTION_UPDATE_COMPLETESTR
-import org.example.tvoard.common.ACTION_UPDATE_COMPOSITIONSTR
+import org.example.tvoard.common.ACTION_UPDATE_COMPLETE
+import org.example.tvoard.common.ACTION_UPDATE_COMPOSITION
 import org.example.tvoard.common.ACTION_USE_INPUT_AS_RESULT
-import org.example.tvoard.common.HANGUL_END
-import org.example.tvoard.common.HANGUL_JAMO_END
-import org.example.tvoard.common.HANGUL_JAMO_START
-import org.example.tvoard.common.HANGUL_MO_START
-import org.example.tvoard.common.HANGUL_START
+import org.example.tvoard.common.HANGEUL_END
+import org.example.tvoard.common.HANGEUL_JAMO_END
+import org.example.tvoard.common.HANGEUL_JAMO_START
+import org.example.tvoard.common.HANGEUL_MO_START
+import org.example.tvoard.common.HANGEUL_START
 import org.example.tvoard.common.KEYSTATE_ALT_MASK
 import org.example.tvoard.common.KEYSTATE_CTRL_MASK
 import org.example.tvoard.common.KEYSTATE_FN
@@ -65,20 +65,20 @@ class KoreanAutomata {
     }
 
     private fun isHangul(word: Char): Boolean {
-        if (word.code in HANGUL_START..HANGUL_END) return true
-        return word.code in HANGUL_JAMO_START..HANGUL_JAMO_END
+        if (word.code in HANGEUL_START..HANGEUL_END) return true
+        return word.code in HANGEUL_JAMO_START..HANGEUL_JAMO_END
     }
 
     private fun isJamo(word: Char): Boolean {
-        return word.code in HANGUL_JAMO_START..HANGUL_JAMO_END
+        return word.code in HANGEUL_JAMO_START..HANGEUL_JAMO_END
     }
 
     private fun isConsonant(word: Char): Boolean {
-        return word.code in HANGUL_JAMO_START until HANGUL_MO_START
+        return word.code in HANGEUL_JAMO_START until HANGEUL_MO_START
     }
 
     private fun isVowel(word: Char): Boolean {
-        return word.code in HANGUL_MO_START..HANGUL_JAMO_END
+        return word.code in HANGEUL_MO_START..HANGEUL_JAMO_END
     }
 
     private fun getFirstConsonantIndex(word: Char): Int {
@@ -94,7 +94,7 @@ class KoreanAutomata {
             } else if (isVowel(word)) {
                 fcIndex = -1
             } else {
-                val offset = word.code - HANGUL_START
+                val offset = word.code - HANGEUL_START
                 fcIndex = offset / (NUM_OF_MIDDLE * NUM_OF_LAST_INDEX)
             }
         }
@@ -114,7 +114,7 @@ class KoreanAutomata {
             vIndex = if (isVowel(word)) {// vowel only character..
                 convertVowelToIndex(word)
             } else {
-                val offset = word.code - HANGUL_START
+                val offset = word.code - HANGEUL_START
                 offset % (NUM_OF_MIDDLE * NUM_OF_LAST_INDEX) / NUM_OF_LAST_INDEX
             }
         }
@@ -141,7 +141,7 @@ class KoreanAutomata {
                     if (lcIndex >= NUM_OF_LAST_INDEX) lcIndex = -1
                 } else lcIndex = -1
             } else {
-                val offset = word.code - HANGUL_START
+                val offset = word.code - HANGEUL_START
                 lcIndex = offset % NUM_OF_LAST_INDEX
             }
         }
@@ -286,7 +286,7 @@ class KoreanAutomata {
                 if (lcIndex in 0 until NUM_OF_LAST) {
                     val offset =
                         fcIndex * NUM_OF_MIDDLE * NUM_OF_LAST_INDEX + vIndex * NUM_OF_LAST_INDEX + lcIndex
-                    word = (offset + HANGUL_START).toChar()
+                    word = (offset + HANGEUL_START).toChar()
                 }
             }
         }
@@ -334,7 +334,7 @@ class KoreanAutomata {
                     compositionString = FirstConsonants.Word[fcIndex] + ""
                     state = 1
                 }
-                return ACTION_UPDATE_COMPOSITIONSTR
+                return ACTION_UPDATE_COMPOSITION
             }
             3 -> {
                 run {
@@ -342,7 +342,7 @@ class KoreanAutomata {
                     compositionString = (word.code - lcIndex).toChar() + ""
                     state = 2
                 }
-                return ACTION_UPDATE_COMPOSITIONSTR
+                return ACTION_UPDATE_COMPOSITION
             }
             5 -> {
                 run {
@@ -357,7 +357,7 @@ class KoreanAutomata {
                     compositionString = Vowels.Word[newIndex] + ""
                     state = 4
                 }
-                return ACTION_UPDATE_COMPOSITIONSTR
+                return ACTION_UPDATE_COMPOSITION
             }
             10 -> {
                 run {
@@ -372,7 +372,7 @@ class KoreanAutomata {
                     compositionString = LastConsonants.Word[newIndex] + ""
                     state = 1
                 }
-                return ACTION_UPDATE_COMPOSITIONSTR
+                return ACTION_UPDATE_COMPOSITION
             }
             11 -> {
                 run {
@@ -387,7 +387,7 @@ class KoreanAutomata {
                     compositionString = (word.code - lcIndex + newIndex).toChar() + ""
                     state = 3
                 }
-                return ACTION_UPDATE_COMPOSITIONSTR
+                return ACTION_UPDATE_COMPOSITION
             }
             20 -> {
                 run {
@@ -400,7 +400,7 @@ class KoreanAutomata {
                     compositionString = composeWordWithIndexes(fcIndex, newIndex, 0) + ""
                     state = 2
                 }
-                return ACTION_UPDATE_COMPOSITIONSTR
+                return ACTION_UPDATE_COMPOSITION
             }
             21 -> {
                 run {
@@ -408,7 +408,7 @@ class KoreanAutomata {
                     compositionString = (word.code - lcIndex).toChar() + ""
                     state = 20
                 }
-                return ACTION_UPDATE_COMPOSITIONSTR
+                return ACTION_UPDATE_COMPOSITION
             }
             22 -> {
                 run {
@@ -423,7 +423,7 @@ class KoreanAutomata {
                     compositionString = (word.code - lcIndex + newIndex).toChar() + ""
                     state = 21
                 }
-                return ACTION_UPDATE_COMPOSITIONSTR
+                return ACTION_UPDATE_COMPOSITION
             }
             else -> return ACTION_ERROR // error. should not be here in any circumstance.
         }
@@ -443,7 +443,7 @@ class KoreanAutomata {
                 completeString = compositionString
                 compositionString = ""
                 state = 0
-                result = ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+                result = ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
             }
             // process the code as English
             if (KeyState and (KEYSTATE_ALT_MASK or KEYSTATE_CTRL_MASK or KEYSTATE_FN) == 0) {
@@ -487,7 +487,7 @@ class KoreanAutomata {
         state = if (isConsonant(word)) 1 else 4
         completeString = ""
         compositionString = word + ""
-        return ACTION_UPDATE_COMPOSITIONSTR or ACTION_APPEND
+        return ACTION_UPDATE_COMPOSITION or ACTION_APPEND
     }
 
     /**
@@ -511,12 +511,12 @@ class KoreanAutomata {
                 state = 1
                 completeString = compositionString // flush
                 compositionString = word + ""
-                ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
             } else { // can combine last consonants
                 state = 10
                 completeString = ""
                 compositionString = newWord + ""
-                ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPOSITION
             }
         }
 
@@ -526,7 +526,7 @@ class KoreanAutomata {
         state = 2
         completeString = ""
         compositionString = newWord + ""
-        return ACTION_UPDATE_COMPOSITIONSTR
+        return ACTION_UPDATE_COMPOSITION
     }
 
     /**
@@ -549,12 +549,12 @@ class KoreanAutomata {
                 state = 3
                 completeString = ""
                 compositionString = (compositionString[0].code + lcIndex).toChar() + ""
-                ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPOSITION
             } else {
                 state = 1
                 completeString = compositionString
                 compositionString = word + ""
-                ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
             }
         } else { // vowel
             val vCode = getVowel(compositionString[0])
@@ -566,12 +566,12 @@ class KoreanAutomata {
                 state = 20
                 completeString = ""
                 compositionString = composeWordWithIndexes(fcIndex, vIndex, 0) + ""
-                ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPOSITION
             } else {
                 state = 4
                 completeString = compositionString
                 compositionString = word + ""
-                ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
             }
         }
     }
@@ -603,12 +603,12 @@ class KoreanAutomata {
                 compositionString =
                     (compositionString[0].code - lcIndex + getLastConsonantIndex(newWord)).toChar() + ""
                 state = 11
-                ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPOSITION
             } else {
                 completeString = compositionString
                 compositionString = word + ""
                 state = 1
-                ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
             }
         } else { // vowel
             val lcIndex = getLastConsonantIndex(compositionString[0])
@@ -630,7 +630,7 @@ class KoreanAutomata {
             compositionString =
                 composeWordWithIndexes(fcIndex, vIndex, 0) + "" // compose new composition string
             state = 2
-            return ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            return ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         }
     }
 
@@ -651,7 +651,7 @@ class KoreanAutomata {
             completeString = compositionString
             compositionString = word + ""
             state = 1
-            return ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            return ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         }
 
         val newWord = combineVowelWithWord(compositionString[0], word)
@@ -660,12 +660,12 @@ class KoreanAutomata {
             completeString = ""
             compositionString = newWord + ""
             state = 5
-            ACTION_UPDATE_COMPOSITIONSTR
+            ACTION_UPDATE_COMPOSITION
         } else {
             completeString = compositionString
             compositionString = word + ""
             state = 4
-            ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         }
     }
 
@@ -686,12 +686,12 @@ class KoreanAutomata {
             completeString = compositionString
             compositionString = word + ""
             state = 1
-            ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         } else {
             completeString = compositionString
             compositionString = word + ""
             state = 4
-            ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         }
     }
 
@@ -712,7 +712,7 @@ class KoreanAutomata {
             completeString = compositionString
             compositionString = word + ""
             state = 1
-            ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         } else {
             val lcIndex0 = getLastConsonantIndex(compositionString[0])
             val lcIndex1 = LastConsonants.iLast[lcIndex0]
@@ -721,7 +721,7 @@ class KoreanAutomata {
             completeString = "${LastConsonants.Code[lcIndex1]}"
             compositionString = composeWordWithIndexes(fcIndex, vIndex, 0) + ""
             state = 2
-            ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         }
     }
 
@@ -742,7 +742,7 @@ class KoreanAutomata {
             completeString = compositionString
             compositionString = word + ""
             state = 1
-            ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         } else {
             val lcIndex = getLastConsonantIndex(compositionString[0])
             val vIndex = getVowelIndex(compositionString[0])
@@ -753,7 +753,7 @@ class KoreanAutomata {
             completeString = composeWordWithIndexes(fcIndex, vIndex, lcIndexNew) + ""
             compositionString = composeWordWithIndexes(fcIndexNew, vIndexNew, 0) + ""
             state = 2
-            ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         }
     }
 
@@ -777,19 +777,19 @@ class KoreanAutomata {
                 completeString = compositionString
                 compositionString = word + ""
                 state = 1
-                ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
             } else { // compose..과
                 var newWord = compositionString[0]
                 completeString = ""
                 compositionString = (newWord.code + lcIndex).toChar() + ""
                 state = 21
-                ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPOSITION
             }
         } else {
             completeString = compositionString
             compositionString = word + ""
             state = 4
-            return ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            return ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         }
     }
 
@@ -813,7 +813,7 @@ class KoreanAutomata {
                 state = 1
                 completeString = compositionString
                 compositionString = word + ""
-                return ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+                return ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
             }
 
             val lcIndexNew = combineLastConsonantWithIndex(lcIndex, lcIndexTemp)
@@ -822,13 +822,13 @@ class KoreanAutomata {
                 state = 1
                 completeString = compositionString
                 compositionString = word + ""
-                ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
             } else {
                 var newWord = compositionString[0]
                 completeString = ""
                 compositionString = (newWord.code - lcIndex + lcIndexNew).toChar() + ""
                 state = 22
-                ACTION_UPDATE_COMPOSITIONSTR
+                ACTION_UPDATE_COMPOSITION
             }
         } else {
             var newWord = compositionString[0]
@@ -838,7 +838,7 @@ class KoreanAutomata {
             completeString = (newWord.code - lcIndex).toChar() + ""
             compositionString = composeWordWithIndexes(fcIndex, vIndex, 0) + ""
             state = 2
-            return ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            return ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         }
     }
 
@@ -859,7 +859,7 @@ class KoreanAutomata {
             completeString = compositionString
             compositionString = word + ""
             state = 1
-            ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         } else {
             var tempChar = compositionString[0]
             val lcIndex0 = getLastConsonantIndex(tempChar)
@@ -869,7 +869,7 @@ class KoreanAutomata {
             completeString = (tempChar.code - lcIndex0 + lcIndex1).toChar() + ""
             compositionString = composeWordWithIndexes(fcIndex, vIndex, 0) + ""
             state = 2
-            ACTION_UPDATE_COMPLETESTR or ACTION_UPDATE_COMPOSITIONSTR
+            ACTION_UPDATE_COMPLETE or ACTION_UPDATE_COMPOSITION
         }
     }
 

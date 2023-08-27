@@ -1,36 +1,25 @@
 package org.example.tvoard.common
 
+const val PREFS_KEY = "Prefs"
+
 // Action Codes
+const val ACTION_ERROR = -1
 const val ACTION_NONE = 0
-const val ACTION_UPDATE_COMPOSITIONSTR = 1
-const val ACTION_UPDATE_COMPLETESTR = 2
+const val ACTION_UPDATE_COMPOSITION = 1
+const val ACTION_UPDATE_COMPLETE = 2
 const val ACTION_USE_INPUT_AS_RESULT = 4
 const val ACTION_APPEND = 8
 const val ACTION_DOWN = 0
 
-// const val ACTION_BACKSPACE = 8; not used.
-const val ACTION_ERROR = -1
-
-const val KEYBOARD_HEIGHT_MULTIPLIER_SMALL = 1
-const val KEYBOARD_HEIGHT_MULTIPLIER_MEDIUM = 2
-const val KEYBOARD_HEIGHT_MULTIPLIER_LARGE = 3
-
-const val PREFS_KEY = "Prefs"
-
 // keyCode
 const val KEYCODE_ALT = -6
-const val KEYCODE_HOME = 3
-const val KEYCODE_BACK = 4
-const val KEYCODE_CANCEL = -3
 const val KEYCODE_DELETE = -5
 const val KEYCODE_DONE = -4
-const val KEYCODE_ENTER = 66
-const val KEYCODE_ESCAPE = 111
-const val KEYCODE_DEL = 67 // Backspace
-const val KEYCODE_MENU = 82
+const val KEYCODE_CANCEL = -3
 const val KEYCODE_MODE_CHANGE = -2
 const val KEYCODE_SHIFT = -1
-const val KEYCODE_SPACE = 62
+const val KEYCODE_HOME = 3
+const val KEYCODE_BACK = 4
 const val KEYCODE_DPAD_UP = 19
 const val KEYCODE_DPAD_DOWN = 20
 const val KEYCODE_DPAD_LEFT = 21
@@ -42,8 +31,13 @@ const val KEYCODE_I = 37
 const val KEYCODE_N = 42
 const val KEYCODE_O = 43
 const val KEYCODE_R = 46
-const val KEYCODE_HANGUL = 218 // KeyEvent.KEYCODE_KANA is available from API 16
+const val KEYCODE_SPACE = 62
+const val KEYCODE_ENTER = 66
+const val KEYCODE_DEL = 67 // Backspace
+const val KEYCODE_MENU = 82
+const val KEYCODE_ESCAPE = 111
 const val KEYCODE_HANJA = 212 // KeyEvent.KEYCODE_EISU is available from API 16
+const val KEYCODE_HANGEUL = 218
 const val META_ALT_ON = 2
 
 // num
@@ -70,8 +64,26 @@ const val KEYSTATE_FN = 64 // just for future usage...
 const val BACK_SPACE = 0x8.toChar()
 
 // Korean
-const val HANGUL_START = 0xAC00
-const val HANGUL_END = 0xD7A3
-const val HANGUL_JAMO_START = 0x3131
-const val HANGUL_MO_START = 0x314F
-const val HANGUL_JAMO_END = 0x3163
+const val HANGEUL_START = 0xAC00
+const val HANGEUL_END = 0xD7A3
+const val HANGEUL_JAMO_START = 0x3131
+const val HANGEUL_MO_START = 0x314F
+const val HANGEUL_JAMO_END = 0x3163
+
+// shared prefs
+const val VIBRATE_ON_KEYPRESS = "vibrate_on_keypress"
+const val SHOW_POPUP_ON_KEYPRESS = "show_popup_on_keypress"
+const val SHOW_KEY_BORDERS = "show_key_borders"
+const val KEYBOARD_LANGUAGE = "keyboard_language"
+const val HEIGHT_PERCENTAGE = "height_percentage"
+const val SHOW_NUMBERS_ROW = "show_numbers_row"
+
+const val LANGUAGE_ENGLISH = 0
+const val LANGUAGE_KOREAN = 1
+const val LANGUAGE_KOREAN_SHIFTED = 2
+const val LANGUAGE_SYMBOL = 3
+const val LANGUAGE_SYMBOL_SHIFTED = 4
+
+const val KEYBOARD_HEIGHT_MULTIPLIER_SMALL = 1
+const val KEYBOARD_HEIGHT_MULTIPLIER_MEDIUM = 2
+const val KEYBOARD_HEIGHT_MULTIPLIER_LARGE = 3

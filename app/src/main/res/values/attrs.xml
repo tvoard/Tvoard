@@ -1,21 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="KeyboardViewPreviewState">
-        <attr name="state_long_pressable" format="boolean" />
-    </declare-styleable>
-
     <declare-styleable name="MyKeyboardView">
+        <attr name="keyboardViewStyle" format="dimension" />
+        <attr name="keyBackground" format="dimension" />
+        <attr name="verticalCorrection" format="dimension" />
+        <attr name="keyPreviewLayout" format="dimension" />
+        <attr name="keyPreviewOffset" format="dimension" />
+        <attr name="keyPreviewHeight" format="dimension" />
         <attr name="keyTextSize" format="dimension" />
+        <attr name="keyTextColor" format="color" />
+        <attr name="labelTextSize" format="dimension" />
+        <attr name="popupLayout" format="dimension" />
+        <attr name="shadowColor" format="color" />
+        <attr name="shadowRadius" format="float" />
+        <attr name="backgroundDimAmount" format="float" />
     </declare-styleable>
 
-    <declare-styleable name="MyKeyboard">
-        <attr name="keyWidth" format="fraction" />
-        <attr name="horizontalGap" format="fraction" />
+    <declare-styleable name="Keyboard">
+        <attr name="keyWidth" format="dimension|fraction" />
+        <attr name="keyHeight" format="dimension|fraction" />
+        <attr name="horizontalGap" format="dimension|fraction" />
+        <attr name="verticalGap" format="dimension|fraction" />
+        <!-- Horizontal padding around key. Included in key size. -->
+        <attr name="horizontalPad" format="dimension|fraction" />
+        <!-- Vertical padding around key. Included in key size. -->
+        <attr name="verticalPad" format="dimension|fraction" />
+        <attr name="isNumbersRow" format="boolean" />
     </declare-styleable>
 
-    <declare-styleable name="MyKeyboard_Key">
+    <declare-styleable name="Keyboard_Row">
+        <attr name="rowEdgeFlags" format="boolean">
+            <flag name="top" value="4" />
+            <flag name="bottom" value="8" />
+        </attr>
+        <attr name="keyboardMode" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="Keyboard_Key">
         <!-- The unicode value that this key outputs. -->
         <attr name="code" format="integer" />
+        <!-- The unicode value or comma-separated values that this key outputs. -->
+        <attr name="codes" format="integer|string" />
         <!-- The XML keyboard layout of any popup keyboard. -->
         <attr name="popupKeyboard" format="reference" />
         <!-- The characters to display in the popup keyboard. -->
@@ -27,13 +52,43 @@
             <!-- Key is anchored to the right of the keyboard. -->
             <flag name="right" value="2" />
         </attr>
+        <!-- Whether this is a modifier key such as Alt or Shift. -->
+        <attr name="isModifier" format="boolean" />
+        <!-- Whether this is a toggle key. -->
+        <attr name="isSticky" format="boolean" />
+        <!-- Whether this is a cursor key (modifies styling). -->
+        <attr name="isCursor" format="boolean" />
         <!-- Whether long-pressing on this key will make it repeat. -->
         <attr name="isRepeatable" format="boolean" />
+        <!-- The icon to show in the popup preview. -->
+        <attr name="iconPreview" format="reference" />
+        <!-- The string of characters to output when this key is pressed. -->
+        <attr name="keyOutputText" format="string" />
         <!-- The label to display on the key. -->
         <attr name="keyLabel" format="string" />
+        <!-- The label to display on the shifted key. -->
+        <attr name="shiftLabel" format="string" />
+        <!-- The label to display on the caps-shifted key. -->
+        <attr name="capsLabel" format="string" />
         <!-- The icon to display on the key instead of the label. -->
         <attr name="keyIcon" format="reference" />
         <!-- Top small number shown above letters of the first row. -->
         <attr name="topSmallNumber" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="KeyboardViewPreviewState">
+        <attr name="state_long_pressable" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="View">
+        <attr name="padding" format="dimension" />
+        <attr name="paddingHorizontal" format="dimension" />
+        <attr name="paddingVertical" format="dimension" />
+        <attr name="paddingLeft" format="dimension" />
+        <attr name="paddingTop" format="dimension" />
+        <attr name="paddingRight" format="dimension" />
+        <attr name="paddingBottom" format="dimension" />
+        <attr name="paddingStart" format="dimension" />
+        <attr name="paddingEnd" format="dimension" />
     </declare-styleable>
 </resources>

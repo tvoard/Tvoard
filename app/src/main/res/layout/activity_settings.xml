@@ -24,6 +24,7 @@
         android:id="@+id/settings_nested_scrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
         android:fillViewport="true"
         android:scrollbars="none"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -48,21 +49,76 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <org.example.tvoard.keyboard.MyTextView
+                <TextView
                     android:id="@+id/settings_language_label"
                     style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/language" />
 
-                <org.example.tvoard.keyboard.MyTextView
+                <TextView
                     android:id="@+id/settings_language"
                     style="@style/SettingsTextValueStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/settings_language_label"
                     tools:text="English" />
+            </RelativeLayout>
 
+            <RelativeLayout
+                android:id="@+id/settings_vibrate_on_keypress_holder"
+                style="@style/SettingsHolderCheckboxStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatCheckBox
+                    android:id="@+id/settings_vibrate_on_keypress"
+                    style="@style/SettingsCheckboxStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/vibrate_on_keypress" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/settings_show_popup_on_keypress_holder"
+                style="@style/SettingsHolderCheckboxStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatCheckBox
+                    android:id="@+id/settings_show_popup_on_keypress"
+                    style="@style/SettingsCheckboxStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/show_popup" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/settings_show_key_borders_holder"
+                style="@style/SettingsHolderCheckboxStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatCheckBox
+                    android:id="@+id/settings_show_key_borders"
+                    style="@style/SettingsCheckboxStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/show_key_borders" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/settings_show_numbers_row_holder"
+                style="@style/SettingsHolderCheckboxStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatCheckBox
+                    android:id="@+id/settings_show_numbers_row"
+                    style="@style/SettingsCheckboxStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/show_numbers_row" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -71,21 +127,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <org.example.tvoard.keyboard.MyTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/settings_keyboard_language_label"
                     style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/keyboard_language" />
 
-                <org.example.tvoard.keyboard.MyTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/settings_keyboard_language"
                     style="@style/SettingsTextValueStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/settings_keyboard_language_label"
                     tools:text="@string/translation_english" />
-
             </RelativeLayout>
 
             <RelativeLayout
@@ -94,14 +149,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <org.example.tvoard.keyboard.MyTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/settings_keyboard_height_multiplier_label"
                     style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/keyboard_height" />
 
-                <org.example.tvoard.keyboard.MyTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/settings_keyboard_height_multiplier"
                     style="@style/SettingsTextValueStyle"
                     android:layout_width="match_parent"
@@ -109,7 +164,6 @@
                     android:layout_below="@+id/settings_keyboard_height_multiplier_label"
                     tools:text="@string/small" />
             </RelativeLayout>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

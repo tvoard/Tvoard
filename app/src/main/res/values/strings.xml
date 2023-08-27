@@ -4,6 +4,8 @@
     <string name="app_name">Tvoard</string>
 
     <string name="word_separators">\u0020.,;:!?\n()[]*&amp;@{}/&lt;&gt;_+=|&quot;</string>
+    <string name="ok">OK</string>
+    <string name="error">Error: %s</string>
 
     <string name="label_go_key">Go</string>
     <string name="label_next_key">Next</string>
@@ -21,7 +23,26 @@
     <string name="app_launcher_name">Keyboard_debug</string>>
     <string name="about">About</string>>
 
-    <style name="SettingsTextLabelStyle">
-        <item name="android:textSize">@dimen/normal_text_size</item>
-    </style>
+    <string name="vibrate_on_keypress">Vibrate on keypress</string>
+    <string name="vibrate_on_button_press">Vibrate on button press</string>
+    <string name="show_key_borders">Show key borders</string>
+    <string name="show_numbers_row">Show numbers on a separate row</string>
+    <string name="show_popup">Show a popup on keypress</string>
+
+
+    <!-- KeyboardView - accessibility support -->
+    <!-- Description of the Alt button in a KeyboardView. [CHAR LIMIT=NONE] -->
+    <string name="keyboardView_keycode_alt">Alt</string>
+    <!-- Description of the Cancel button in a KeyboardView. [CHAR LIMIT=NONE] -->
+    <string name="keyboardView_keycode_cancel">Cancel</string>
+    <!-- Description of the Delete button in a KeyboardView. [CHAR LIMIT=NONE] -->
+    <string name="keyboardView_keycode_delete">Delete</string>
+    <!-- Description of the Done button in a KeyboardView. [CHAR LIMIT=NONE] -->
+    <string name="keyboardView_keycode_done">Done</string>
+    <!-- Description of the Mode change button in a KeyboardView. [CHAR LIMIT=NONE] -->
+    <string name="keyboardView_keycode_mode_change">Mode change</string>
+    <!-- Description of the Shift button in a KeyboardView. [CHAR LIMIT=NONE] -->
+    <string name="keyboardView_keycode_shift">Shift</string>
+    <!-- Description of the Enter button in a KeyboardView. [CHAR LIMIT=NONE] -->
+    <string name="keyboardView_keycode_enter">Enter</string>
 </resources>

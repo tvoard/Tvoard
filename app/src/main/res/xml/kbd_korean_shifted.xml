@@ -15,50 +15,47 @@
 ** See the License for the specific language governing permissions and 
 ** limitations under the License.
 **
-** halbae87: modified Soft Keyboard Sample to create this project
-**
 */
 -->
-
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
     android:horizontalGap="0px"
-    android:keyWidth="10%p"
     android:keyHeight="@dimen/key_height"
+    android:keyWidth="10%p"
     android:verticalGap="0px">
 
     <Row>
         <Key
             android:codes="113"
             android:keyEdgeFlags="left"
-            android:keyLabel="q" />
+            android:keyLabel="ㅃ" />
         <Key
             android:codes="119"
-            android:keyLabel="w" />
+            android:keyLabel="ㅉ" />
         <Key
             android:codes="101"
-            android:keyLabel="e" />
+            android:keyLabel="ㄸ" />
         <Key
             android:codes="114"
-            android:keyLabel="r" />
+            android:keyLabel="ㄲ" />
         <Key
             android:codes="116"
-            android:keyLabel="t" />
+            android:keyLabel="ㅆ" />
         <Key
             android:codes="121"
-            android:keyLabel="y" />
+            android:keyLabel="ㅛ" />
         <Key
             android:codes="117"
-            android:keyLabel="u" />
+            android:keyLabel="ㅕ" />
         <Key
             android:codes="105"
-            android:keyLabel="i" />
+            android:keyLabel="ㅑ" />
         <Key
             android:codes="111"
-            android:keyLabel="o" />
+            android:keyLabel="ㅒ" />
         <Key
             android:codes="112"
             android:keyEdgeFlags="right"
-            android:keyLabel="p" />
+            android:keyLabel="ㅖ" />
     </Row>
 
     <Row>
@@ -66,32 +63,32 @@
             android:codes="97"
             android:horizontalGap="5%p"
             android:keyEdgeFlags="left"
-            android:keyLabel="a" />
+            android:keyLabel="ㅁ" />
         <Key
             android:codes="115"
-            android:keyLabel="s" />
+            android:keyLabel="ㄴ" />
         <Key
             android:codes="100"
-            android:keyLabel="d" />
+            android:keyLabel="ㅇ" />
         <Key
             android:codes="102"
-            android:keyLabel="f" />
+            android:keyLabel="ㄹ" />
         <Key
             android:codes="103"
-            android:keyLabel="g" />
+            android:keyLabel="ㅎ" />
         <Key
             android:codes="104"
-            android:keyLabel="h" />
+            android:keyLabel="ㅗ" />
         <Key
             android:codes="106"
-            android:keyLabel="j" />
+            android:keyLabel="ㅓ" />
         <Key
             android:codes="107"
-            android:keyLabel="k" />
+            android:keyLabel="ㅏ" />
         <Key
             android:codes="108"
             android:keyEdgeFlags="right"
-            android:keyLabel="l" />
+            android:keyLabel="ㅣ" />
     </Row>
 
     <Row>
@@ -99,60 +96,60 @@
             android:codes="-1"
             android:isModifier="true"
             android:isSticky="true"
-            android:keyWidth="15%p"
             android:keyEdgeFlags="left"
-            android:keyIcon="@drawable/sym_keyboard_shift" />
+            android:keyIcon="@drawable/ic_key_shift"
+            android:keyWidth="15%p" />
         <Key
             android:codes="122"
-            android:keyLabel="z" />
+            android:keyLabel="ㅋ" />
         <Key
             android:codes="120"
-            android:keyLabel="x" />
+            android:keyLabel="ㅌ" />
         <Key
             android:codes="99"
-            android:keyLabel="c" />
+            android:keyLabel="ㅊ" />
         <Key
             android:codes="118"
-            android:keyLabel="v" />
+            android:keyLabel="ㅍ" />
         <Key
             android:codes="98"
-            android:keyLabel="b" />
+            android:keyLabel="ㅠ" />
         <Key
             android:codes="110"
-            android:keyLabel="n" />
+            android:keyLabel="ㅜ" />
         <Key
             android:codes="109"
-            android:keyLabel="m" />
+            android:keyLabel="ㅡ" />
         <Key
             android:codes="-5"
             android:isRepeatable="true"
-            android:keyWidth="15%p"
             android:keyEdgeFlags="right"
-            android:keyIcon="@drawable/sym_keyboard_delete" />
+            android:keyIcon="@drawable/ic_key_delete"
+            android:keyWidth="15%p" />
     </Row>
 
     <Row android:rowEdgeFlags="bottom">
         <!--
-                <Key android:codes="-6" android:keyIcon="@drawable/sym_keyboard_done"
-                        android:keyWidth="20%p" android:keyEdgeFlags="left"/>
+                <Key app:codes="-6" app:keyIcon="@drawable/sym_keyboard_done"
+                        app:keyWidth="20%p" app:keyEdgeFlags="left"/>
          -->
         <Key
             android:codes="-6"
-            android:keyWidth="20%p"
             android:keyEdgeFlags="left"
-            android:keyLabel="한글" />
+            android:keyLabel="영문"
+            android:keyWidth="20%p" />
         <Key
             android:codes="-2"
-            android:keyWidth="15%p"
-            android:keyLabel="123" />
+            android:keyLabel="123"
+            android:keyWidth="15%p" />
         <Key
             android:codes="32"
             android:isRepeatable="true"
-            android:keyWidth="30%p"
-            android:keyIcon="@drawable/sym_keyboard_space" />
+            android:keyIcon="@drawable/ic_key_space"
+            android:keyWidth="30%p" />
         <!--  
-        <Key android:codes="46,44" android:keyLabel=". ,"
-                android:keyWidth="15%p"/>
+        <Key app:codes="46,44" app:keyLabel=". ,"
+                app:keyWidth="15%p"/>
         -->
         <Key
             android:codes="46"
@@ -162,9 +159,9 @@
             android:keyLabel="," />
         <Key
             android:codes="10"
-            android:keyWidth="20%p"
             android:keyEdgeFlags="right"
-            android:keyIcon="@drawable/sym_keyboard_return" />
+            android:keyIcon="@drawable/ic_key_return"
+            android:keyWidth="20%p" />
     </Row>
 </Keyboard>
     

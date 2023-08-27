@@ -6,17 +6,15 @@
  * the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package org.example.tvoard.keyboard
 
-import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
 import android.inputmethodservice.KeyboardView
 import android.text.method.MetaKeyKeyListener
@@ -28,7 +26,33 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import org.example.tvoard.KoreanAutomata
 import org.example.tvoard.R
-import org.example.tvoard.common.*
+import org.example.tvoard.common.ACTION_APPEND
+import org.example.tvoard.common.ACTION_ERROR
+import org.example.tvoard.common.ACTION_UPDATE_COMPLETE
+import org.example.tvoard.common.ACTION_UPDATE_COMPOSITION
+import org.example.tvoard.common.ACTION_USE_INPUT_AS_RESULT
+import org.example.tvoard.common.KEYCODE_A
+import org.example.tvoard.common.KEYCODE_ALT
+import org.example.tvoard.common.KEYCODE_BACK
+import org.example.tvoard.common.KEYCODE_CANCEL
+import org.example.tvoard.common.KEYCODE_D
+import org.example.tvoard.common.KEYCODE_DEL
+import org.example.tvoard.common.KEYCODE_DELETE
+import org.example.tvoard.common.KEYCODE_DPAD_DOWN
+import org.example.tvoard.common.KEYCODE_DPAD_LEFT
+import org.example.tvoard.common.KEYCODE_DPAD_RIGHT
+import org.example.tvoard.common.KEYCODE_DPAD_UP
+import org.example.tvoard.common.KEYCODE_ENTER
+import org.example.tvoard.common.KEYCODE_I
+import org.example.tvoard.common.KEYCODE_MODE_CHANGE
+import org.example.tvoard.common.KEYCODE_N
+import org.example.tvoard.common.KEYCODE_O
+import org.example.tvoard.common.KEYCODE_R
+import org.example.tvoard.common.KEYCODE_SHIFT
+import org.example.tvoard.common.KEYCODE_SPACE
+import org.example.tvoard.common.KEYSTATE_NONE
+import org.example.tvoard.common.KEYSTATE_SHIFT
+import org.example.tvoard.common.META_ALT_ON
 
 /**
  * Example of writing an input method for a soft keyboard.  This code is
@@ -37,19 +61,17 @@ import org.example.tvoard.common.*
  * a basic example for how you would get started writing an input method, to
  * be fleshed out as appropriate.
  */
-@SuppressLint("InlinedApi")
 class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener {
+
+    companion object {
+        const val PROCESS_HARD_KEYS = true
+        const val KEYCODE_HANGUL = 218 // KeyEvent.KEYCODE_KANA is available from API 16
+    }
 
     private val TAG = "SoftKeyboard"
     private var mInputView: KeyboardView? = null
 
-    private val mComposing = StringBuilder()
-
-    private var mLastDisplayWidth = 0
-    private var isCapsLock = false
-    private var mLastShiftTime: Long = 0
-    private var mMetaState: Long = 0
-    private var isHwShift = false
+    private var mKeyboard: MyKeyboard? = null
     private var mSymbolsKeyboard: MyKeyboard? = null
     private var mSymbolsShiftedKeyboard: MyKeyboard? = null
     private var mQwertyKeyboard: MyKeyboard? = null
@@ -59,9 +81,14 @@ class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener
     private var mCurKeyboard: MyKeyboard? = null
     private var wordSeparators: String? = null
     private var kauto: KoreanAutomata? = null
-    private var mNoKorean = false
 
-    private var mKeyboard: MyKeyboard? = null
+    private var isHwShift = false
+    private var isCapsLock = false
+    private var mNoKorean = false
+    private var mMetaState: Long = 0
+    private var mLastShiftTime: Long = 0
+    private var mLastDisplayWidth = 0
+    private val mComposing = StringBuilder()
 
     /**
      * This is the point where you can do all of your UI initialization.  It
@@ -71,7 +98,7 @@ class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener
         Log.v(TAG, "onInitializeInterface: 0.")
         super.onInitializeInterface()
 
-        mKeyboard = MyKeyboard(this, R.xml.korean)
+        mKeyboard = MyKeyboard(this, R.xml.kbd_korean)
         if (mQwertyKeyboard != null) {
             val displayWidth = maxWidth
             if (displayWidth == mLastDisplayWidth) {
@@ -80,11 +107,11 @@ class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener
             mLastDisplayWidth = displayWidth
         }
         kauto = KoreanAutomata()
-        mQwertyKeyboard = MyKeyboard(this, R.xml.qwerty)
-        mSymbolsKeyboard = MyKeyboard(this, R.xml.symbols)
-        mSymbolsShiftedKeyboard = MyKeyboard(this, R.xml.symbols_shift)
-        mKoreanKeyboard = MyKeyboard(this, R.xml.korean)
-        mKoreanShiftedKeyboard = MyKeyboard(this, R.xml.korean_shifted)
+        mQwertyKeyboard = MyKeyboard(this, R.xml.kbd_english)
+        mSymbolsKeyboard = MyKeyboard(this, R.xml.kbd_symbols)
+        mSymbolsShiftedKeyboard = MyKeyboard(this, R.xml.kbd_symbols_shift)
+        mKoreanKeyboard = MyKeyboard(this, R.xml.kbd_korean)
+        mKoreanShiftedKeyboard = MyKeyboard(this, R.xml.kbd_korean_shifted)
         mBackupKeyboard = null
     }
 
@@ -303,7 +330,7 @@ class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener
                 mComposing.setLength(mComposing.length - 1)
             }
         }
-        onKey(c, keyCodes = null)
+        onKey(c, null)
         return true
     }
 
@@ -317,18 +344,6 @@ class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener
         currentInputConnection.sendKeyEvent(
             KeyEvent(KeyEvent.ACTION_UP, keyEventCode)
         )
-    }
-
-    override fun onText(text: CharSequence?) {
-        Log.v(TAG, "onText: 0. text=$text")
-        val ic = currentInputConnection ?: return
-        ic.beginBatchEdit()
-        if (mComposing.isNotEmpty()) {
-            commitTyped(ic)
-        }
-        ic.commitText(text, 0)
-        ic.endBatchEdit()
-        updateShiftKeyState(currentInputEditorInfo)
     }
 
     /**
@@ -361,7 +376,7 @@ class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener
                 mInputView!!.isShifted = isCapsLock || caps != 0
             } else if (mKoreanShiftedKeyboard === mInputView!!.keyboard) {
                 mKoreanShiftedKeyboard!!.isShifted = false
-                mInputView!!.keyboard = mKoreanKeyboard
+                mInputView!!.isShifted = false
                 mKoreanKeyboard!!.isShifted = false
             }
         }
@@ -389,9 +404,275 @@ class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener
         }
     }
 
+    private fun handleWordSeparator(primaryCode: Int) {
+        Log.v(TAG, "-handleWordSeparator: 0. primaryCode=$primaryCode")
+
+        if (mComposing.isNotEmpty()) {
+            commitTyped(currentInputConnection)
+        }
+        if (kauto!!.isKoreanMode()) {
+            kauto!!.finishAutomataWithoutInput()
+        }
+        sendKey(primaryCode)
+        if (mInputView != null) {
+            updateShiftKeyState(currentInputEditorInfo)
+        }
+    }
+
+    private fun handleBackspace() {
+        Log.v(TAG, "-handleBackspace: 0.")
+
+        Log.v(TAG, "-handleBackspace: 1. mKoreanMode=${kauto!!.isKoreanMode()}")
+        if (kauto!!.isKoreanMode()) {
+            val ret = kauto!!.doBackSpace()
+            Log.v(TAG, "-handleBackspace: 2. ret=$ret")
+
+            if (ret == ACTION_ERROR) {
+                updateShiftKeyState(currentInputEditorInfo)
+                return
+            }
+            if (ret == ACTION_UPDATE_COMPOSITION) {
+                Log.v(
+                    TAG,
+                    "-handleBackspace: 2. mCompositionString=${kauto!!.getCompositionString()}"
+                )
+                if (kauto!!.getCompositionString() !== "") {
+                    // mComposing.setLength(0)
+                    if (mComposing.isNotEmpty()) {
+                        mComposing.replace(
+                            mComposing.length - 1,
+                            mComposing.length,
+                            kauto!!.getCompositionString()
+                        )
+                        currentInputConnection.setComposingText(mComposing, 1)
+                    }
+                    // mComposing.append(kauto.getCompositionString())
+                    updateShiftKeyState(currentInputEditorInfo)
+                    return
+                }
+            }
+        }
+
+        val length = mComposing.length
+        if (length > 1) {
+            mComposing.delete(length - 1, length)
+            currentInputConnection.setComposingText(mComposing, 1)
+        } else if (length > 0) {
+            mComposing.setLength(0)
+            currentInputConnection.commitText("", 0)
+        } else {
+            keyDownUp(KEYCODE_DEL)
+        }
+        updateShiftKeyState(currentInputEditorInfo)
+    }
+
+    private fun handleShift() {
+        Log.v(TAG, "-handleShift: 0.")
+
+        if (mInputView == null) {
+            return
+        }
+
+        val currentKeyboard = mInputView!!.keyboard
+        Log.v(TAG, "-handleShift: 2. currentKeyboard=$currentKeyboard")
+        if (currentKeyboard === mQwertyKeyboard) {
+            checkToggleCapsLock()
+            mInputView!!.isShifted = isCapsLock || !mInputView!!.isShifted
+        } else if (currentKeyboard === mKoreanKeyboard) {
+            mKoreanKeyboard!!.isShifted = true
+            mInputView!!.keyboard = mKoreanShiftedKeyboard
+            mKoreanShiftedKeyboard!!.isShifted = true
+        } else if (currentKeyboard === mKoreanShiftedKeyboard) {
+            mKoreanShiftedKeyboard!!.isShifted = false
+            mInputView!!.keyboard = mKoreanKeyboard
+            mKoreanKeyboard!!.isShifted = false
+        } else if (currentKeyboard === mSymbolsKeyboard) {
+            mSymbolsKeyboard!!.isShifted = true
+            mInputView!!.keyboard = mSymbolsShiftedKeyboard
+            mSymbolsShiftedKeyboard!!.isShifted = true
+        } else if (currentKeyboard === mSymbolsShiftedKeyboard) {
+            mSymbolsShiftedKeyboard!!.isShifted = false
+            mInputView!!.keyboard = mSymbolsKeyboard
+            mSymbolsKeyboard!!.isShifted = false
+        }
+    }
+
+    private fun handleClose() {
+        Log.v(TAG, "-handleClose: 0.")
+        commitTyped(currentInputConnection)
+        requestHideSelf(0)
+        mInputView!!.closing()
+    }
+
+    private fun handleAlt() {
+        Log.v(TAG, "-handleAlt: 0.")
+        if (mInputView == null) {
+            return
+        }
+
+        if (mNoKorean) {
+            Log.v(TAG, "-handleAlt: 1. Not Korean")
+            return
+        }
+
+        val current = if (kauto!!.isKoreanMode()) {
+            Log.v(TAG, "-handleAlt: 1. change keyboard view to English")
+            mQwertyKeyboard
+        } else {
+            Log.v(TAG, "-handleAlt: 1. change keyboard view to Korean")
+            mKoreanKeyboard
+        }
+
+        mInputView!!.keyboard = current
+        if (mComposing.isNotEmpty()) {
+            commitTyped(currentInputConnection)
+        }
+        kauto!!.toggleMode()
+        if (current === mQwertyKeyboard || current === mKoreanKeyboard) {
+            current!!.isShifted = false
+        }
+    }
+
+    private fun handleModeChange() {
+        Log.v(TAG, "-handleModeChange: 0.")
+
+        var current = mInputView!!.keyboard
+        Log.v(TAG, "-handleModeChange: change keyboard view from $current")
+        if (current === mSymbolsKeyboard || current === mSymbolsShiftedKeyboard) {
+            current = if (mBackupKeyboard != null) mBackupKeyboard else mQwertyKeyboard
+            mBackupKeyboard = null
+            // reset Korean input mode.
+            if (current === mQwertyKeyboard && kauto!!.isKoreanMode()) {
+                kauto!!.toggleMode()
+            }
+        } else {
+            mBackupKeyboard = current as MyKeyboard
+            current = mSymbolsKeyboard
+            // need to submit current composition string
+            if (mComposing.isNotEmpty()) {
+                commitTyped(currentInputConnection)
+            }
+            if (kauto!!.isKoreanMode()) {
+                kauto!!.finishAutomataWithoutInput()
+            }
+        }
+        mInputView!!.keyboard = current
+        if (current === mSymbolsKeyboard) {
+            current!!.isShifted = false
+        }
+    }
+
+    private fun handleCharacter(primaryCode: Int) {
+        Log.v(TAG, "-handleCharacter: 0. primaryCode=$primaryCode")
+
+        var primaryCode: Int = primaryCode
+        var keyState = KEYSTATE_NONE
+
+        Log.v(TAG, "-handleCharacter: 1. isInputViewShown=$isInputViewShown")
+        if (isInputViewShown) {
+            if (mInputView!!.isShifted) {
+                primaryCode = Character.toUpperCase(primaryCode)
+                keyState = keyState or KEYSTATE_SHIFT
+            }
+        }
+
+        Log.v(TAG, "-handleCharacter: 2. isHwShift=$isHwShift")
+        if (isHwShift) {
+            keyState = keyState or KEYSTATE_SHIFT
+        }
+
+        Log.v(TAG, "-handleCharacter: 3. Character.isLetter=${Character.isLetter(primaryCode)}")
+        if (!Character.isLetter(primaryCode)) {
+            if (mComposing.isNotEmpty()) {
+                currentInputConnection.commitText(mComposing, 1)
+                mComposing.setLength(0)
+            }
+            kauto!!.finishAutomataWithoutInput()
+            currentInputConnection.commitText(primaryCode.toChar().toString(), 1)
+            return
+        }
+
+        val ret = kauto!!.doAutomata(primaryCode.toChar(), keyState)
+        Log.v(TAG, "-handleCharacter: 4. ret=$ret")
+        if (ret < 0) {
+            if (kauto!!.isKoreanMode()) {
+                kauto!!.toggleMode()
+            }
+        } else {
+            if ((ret and ACTION_UPDATE_COMPLETE) != 0) {
+                if (mComposing.isNotEmpty()) {
+                    mComposing.replace(
+                        mComposing.length - 1,
+                        mComposing.length,
+                        kauto!!.getCompleteString()
+                    )
+                } else {
+                    mComposing.append(kauto!!.getCompleteString())
+                }
+                if (mComposing.isNotEmpty()) {
+                    currentInputConnection.setComposingText(mComposing, 1)
+                    // commitTyped(getCurrentInputConnection());
+                }
+            }
+            if ((ret and ACTION_UPDATE_COMPOSITION) != 0) {
+                if ((mComposing.isNotEmpty()) && ((ret and ACTION_UPDATE_COMPLETE) == 0) && ((ret and ACTION_APPEND) == 0)) {
+                    mComposing.replace(
+                        mComposing.length - 1,
+                        mComposing.length,
+                        kauto!!.getCompositionString()
+                    )
+                } else {
+                    mComposing.append(kauto!!.getCompositionString())
+                }
+                currentInputConnection.setComposingText(mComposing, 1)
+            }
+        }
+
+        if ((ret and ACTION_USE_INPUT_AS_RESULT) != 0) {
+            mComposing.append(primaryCode.toChar())
+            currentInputConnection.setComposingText(mComposing, 1)
+        }
+        updateShiftKeyState(currentInputEditorInfo)
+    }
+
+    private fun handleDpad(primaryCode: Int) {
+        Log.v(TAG, "-handleDpad: 0. primaryCode=[$primaryCode]")
+
+        if (mComposing.isNotEmpty()) {
+            currentInputConnection.commitText(mComposing, 1)
+            mComposing.setLength(0)
+        }
+        kauto!!.finishAutomataWithoutInput()
+        currentInputConnection.commitText(primaryCode.toChar().toString(), 1)
+    }
+
+    private fun checkToggleCapsLock() {
+        val now = System.currentTimeMillis()
+        if (mLastShiftTime + 800 > now) {
+            isCapsLock = !isCapsLock
+            mLastShiftTime = 0
+        } else {
+            mLastShiftTime = now
+        }
+    }
+
+    private fun isWordSeparator(code: Int): Boolean {
+        val separators = wordSeparators
+        return separators!!.contains(code.toChar().toString())
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onPress(primaryCode: Int) {
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onRelease(primaryCode: Int) {
+    }
+
     /**
      * Implementation of KeyboardViewListener
      */
+    @Deprecated("Deprecated in Java")
     override fun onKey(primaryCode: Int, keyCodes: IntArray?) {
         Log.v(TAG, "onKey: 0. primaryCode=$primaryCode, keyCodes=$keyCodes")
 
@@ -428,7 +709,7 @@ class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener
             handleDpad(KEYCODE_DPAD_RIGHT)
         } else {
             Log.v(TAG, "onKey: 1. CHARACTER")
-            handleCharacter(primaryCode, keyCodes!!)
+            handleCharacter(primaryCode)
         }
     }
 
@@ -562,275 +843,26 @@ class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener
         return super.onKeyUp(keyCode, event)
     }
 
-    private fun handleWordSeparator(primaryCode: Int) {
-        Log.v(TAG, "-handleWordSeparator: 0. primaryCode=$primaryCode")
-
-        if (mComposing.isNotEmpty()) {
-            commitTyped(currentInputConnection)
-        }
-        if (kauto!!.isKoreanMode()) {
-            kauto!!.finishAutomataWithoutInput()
-        }
-        sendKey(primaryCode)
-        if (mInputView != null) {
-            updateShiftKeyState(currentInputEditorInfo)
-        }
-    }
-
-    private fun handleBackspace() {
-        Log.v(TAG, "-handleBackspace: 0.")
-
-        Log.v(TAG, "-handleBackspace: 1. mKoreanMode=${kauto!!.isKoreanMode()}")
-        if (kauto!!.isKoreanMode()) {
-            val ret = kauto!!.doBackSpace()
-            Log.v(TAG, "-handleBackspace: 2. ret=$ret")
-
-            if (ret == ACTION_ERROR) {
-                updateShiftKeyState(currentInputEditorInfo)
-                return
-            }
-            if (ret == ACTION_UPDATE_COMPOSITIONSTR) {
-                Log.v(
-                    TAG,
-                    "-handleBackspace: 2. mCompositionString=${kauto!!.getCompositionString()}"
-                )
-                if (kauto!!.getCompositionString() !== "") {
-                    // mComposing.setLength(0)
-                    if (mComposing.isNotEmpty()) {
-                        mComposing.replace(
-                            mComposing.length - 1,
-                            mComposing.length,
-                            kauto!!.getCompositionString()
-                        )
-                        currentInputConnection.setComposingText(mComposing, 1)
-                    }
-                    // mComposing.append(kauto.getCompositionString())
-                    updateShiftKeyState(currentInputEditorInfo)
-                    return
-                }
-            }
-        }
-
-        val length = mComposing.length
-        if (length > 1) {
-            mComposing.delete(length - 1, length)
-            currentInputConnection.setComposingText(mComposing, 1)
-        } else if (length > 0) {
-            mComposing.setLength(0)
-            currentInputConnection.commitText("", 0)
-        } else {
-            keyDownUp(KEYCODE_DEL)
-        }
-        updateShiftKeyState(currentInputEditorInfo)
-    }
-
-    private fun handleShift() {
-        Log.v(TAG, "-handleShift: 0.")
-
-        if (mInputView == null) {
-            return
-        }
-
-        val currentKeyboard = mInputView!!.keyboard
-        Log.v(TAG, "-handleShift: 2. currentKeyboard=$currentKeyboard")
-        if (currentKeyboard === mQwertyKeyboard) {
-            checkToggleCapsLock()
-            mInputView!!.isShifted = isCapsLock || !mInputView!!.isShifted
-        } else if (currentKeyboard === mKoreanKeyboard) {
-            mKoreanKeyboard!!.isShifted = true
-            mInputView!!.keyboard = mKoreanShiftedKeyboard
-            mKoreanShiftedKeyboard!!.isShifted = true
-        } else if (currentKeyboard === mKoreanShiftedKeyboard) {
-            mKoreanShiftedKeyboard!!.isShifted = false
-            mInputView!!.keyboard = mKoreanKeyboard
-            mKoreanKeyboard!!.isShifted = false
-        } else if (currentKeyboard === mSymbolsKeyboard) {
-            mSymbolsKeyboard!!.isShifted = true
-            mInputView!!.keyboard = mSymbolsShiftedKeyboard
-            mSymbolsShiftedKeyboard!!.isShifted = true
-        } else if (currentKeyboard === mSymbolsShiftedKeyboard) {
-            mSymbolsShiftedKeyboard!!.isShifted = false
-            mInputView!!.keyboard = mSymbolsKeyboard
-            mSymbolsKeyboard!!.isShifted = false
-        }
-    }
-
-    private fun handleClose() {
-        Log.v(TAG, "-handleClose: 0.")
-        commitTyped(currentInputConnection)
-        requestHideSelf(0)
-        mInputView!!.closing()
-    }
-
-    private fun handleAlt() {
-        Log.v(TAG, "-handleAlt: 0.")
-        if (mInputView == null) {
-            return
-        }
-
-        if (mNoKorean) {
-            Log.v(TAG, "-handleAlt: 1. Not Korean")
-            return
-        }
-
-        val current = if (kauto!!.isKoreanMode()) {
-            Log.v(TAG, "-handleAlt: 1. change keyboard view to English")
-            mQwertyKeyboard
-        } else {
-            Log.v(TAG, "-handleAlt: 1. change keyboard view to Korean")
-            mKoreanKeyboard
-        }
-
-        mInputView!!.keyboard = current
-        if (mComposing.isNotEmpty()) {
-            commitTyped(currentInputConnection)
-        }
-        kauto!!.toggleMode()
-        if (current === mQwertyKeyboard || current === mKoreanKeyboard) {
-            current!!.isShifted = false
-        }
-    }
-
-    private fun handleModeChange() {
-        Log.v(TAG, "-handleModeChange: 0.")
-
-        var current = mInputView!!.keyboard
-        Log.v(TAG, "-handleModeChange: change keyboard view from $current")
-        if (current === mSymbolsKeyboard || current === mSymbolsShiftedKeyboard) {
-            current = if (mBackupKeyboard != null) mBackupKeyboard else mQwertyKeyboard
-            mBackupKeyboard = null
-            // reset Korean input mode.
-            if (current === mQwertyKeyboard && kauto!!.isKoreanMode()) {
-                kauto!!.toggleMode()
-            }
-        } else {
-            mBackupKeyboard = current as MyKeyboard
-            current = mSymbolsKeyboard
-            // need to submit current composition string
-            if (mComposing.isNotEmpty()) {
-                commitTyped(currentInputConnection)
-            }
-            if (kauto!!.isKoreanMode()) {
-                kauto!!.finishAutomataWithoutInput()
-            }
-        }
-        mInputView!!.keyboard = current
-        if (current === mSymbolsKeyboard) {
-            current!!.isShifted = false
-        }
-    }
-
-    private fun handleCharacter(primaryCode: Int, keyCodes: IntArray) {
-        Log.v(TAG, "-handleCharacter: 0. primaryCode=$primaryCode keyCodes=$keyCodes")
-
-        var primaryCode: Int = primaryCode
-        var keyState = KEYSTATE_NONE
-
-        Log.v(TAG, "-handleCharacter: 1. isInputViewShown=$isInputViewShown")
-        if (isInputViewShown) {
-            if (mInputView!!.isShifted) {
-                primaryCode = Character.toUpperCase(primaryCode)
-                keyState = keyState or KEYSTATE_SHIFT
-            }
-        }
-
-        Log.v(TAG, "-handleCharacter: 2. isHwShift=$isHwShift")
-        if (isHwShift) {
-            keyState = keyState or KEYSTATE_SHIFT
-        }
-
-        Log.v(TAG, "-handleCharacter: 3. Character.isLetter=${Character.isLetter(primaryCode)}")
-        if (!Character.isLetter(primaryCode)) {
-            if (mComposing.isNotEmpty()) {
-                currentInputConnection.commitText(mComposing, 1)
-                mComposing.setLength(0)
-            }
-            kauto!!.finishAutomataWithoutInput()
-            currentInputConnection.commitText(primaryCode.toChar().toString(), 1)
-            return
-        }
-
-        val ret = kauto!!.doAutomata(primaryCode.toChar(), keyState)
-        Log.v(TAG, "-handleCharacter: 4. ret=$ret")
-        if (ret < 0) {
-            if (kauto!!.isKoreanMode()) {
-                kauto!!.toggleMode()
-            }
-        } else {
-            if ((ret and ACTION_UPDATE_COMPLETESTR) != 0) {
-                if (mComposing.isNotEmpty()) {
-                    mComposing.replace(
-                        mComposing.length - 1,
-                        mComposing.length,
-                        kauto!!.getCompleteString()
-                    )
-                } else {
-                    mComposing.append(kauto!!.getCompleteString())
-                }
-                if (mComposing.isNotEmpty()) {
-                    currentInputConnection.setComposingText(mComposing, 1)
-                    // commitTyped(getCurrentInputConnection());
-                }
-            }
-            if ((ret and ACTION_UPDATE_COMPOSITIONSTR) != 0) {
-                if ((mComposing.isNotEmpty()) && ((ret and ACTION_UPDATE_COMPLETESTR) == 0) && ((ret and ACTION_APPEND) == 0)) {
-                    mComposing.replace(
-                        mComposing.length - 1,
-                        mComposing.length,
-                        kauto!!.getCompositionString()
-                    )
-                } else {
-                    mComposing.append(kauto!!.getCompositionString())
-                }
-                currentInputConnection.setComposingText(mComposing, 1)
-            }
-        }
-
-        if ((ret and ACTION_USE_INPUT_AS_RESULT) != 0) {
-            mComposing.append(primaryCode.toChar())
-            currentInputConnection.setComposingText(mComposing, 1)
-        }
-        updateShiftKeyState(currentInputEditorInfo)
-    }
-
-    private fun handleDpad(primaryCode: Int) {
-        Log.v(TAG, "-handleDpad: 0. primaryCode=[$primaryCode]")
-
-        if (mComposing.isNotEmpty()) {
-            currentInputConnection.commitText(mComposing, 1)
-            mComposing.setLength(0)
-        }
-        kauto!!.finishAutomataWithoutInput()
-        currentInputConnection.commitText(primaryCode.toChar().toString(), 1)
-    }
-
-    private fun checkToggleCapsLock() {
-        val now = System.currentTimeMillis()
-        if (mLastShiftTime + 800 > now) {
-            isCapsLock = !isCapsLock
-            mLastShiftTime = 0
-        } else {
-            mLastShiftTime = now
-        }
-    }
-
-    private fun isWordSeparator(code: Int): Boolean {
-        val separators = wordSeparators
-        return separators!!.contains(code.toChar().toString())
-    }
-
-    companion object {
-        const val PROCESS_HARD_KEYS = true
-        const val KEYCODE_HANGUL = 218 // KeyEvent.KEYCODE_KANA is available from API 16
-    }
-
     @Deprecated("Deprecated in Java")
-    override fun swipeRight() {
+    override fun onText(text: CharSequence?) {
+        Log.v(TAG, "onText: 0. text=$text")
+        val ic = currentInputConnection ?: return
+        ic.beginBatchEdit()
+        if (mComposing.isNotEmpty()) {
+            commitTyped(ic)
+        }
+        ic.commitText(text, 0)
+        ic.endBatchEdit()
+        updateShiftKeyState(currentInputEditorInfo)
     }
 
     @Deprecated("Deprecated in Java")
     override fun swipeLeft() {
         handleBackspace()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun swipeRight() {
     }
 
     @Deprecated("Deprecated in Java")
@@ -842,11 +874,4 @@ class SoftKeyboard : InputMethodService(), KeyboardView.OnKeyboardActionListener
     override fun swipeUp() {
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onPress(primaryCode: Int) {
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onRelease(primaryCode: Int) {
-    }
 }
